@@ -1,70 +1,57 @@
 import React from "react";
+import Course from "./components/Course";
 
 const App = () => {
-  const course = {
-    name: "Half Stack application development",
-    parts: [
-      {
-        name: "Fundamentals of React",
-        exercises: 10,
-      },
-      {
-        name: "Using props to pass data",
-        exercises: 7,
-      },
-      {
-        name: "State of a component",
-        exercises: 14,
-      },
-    ],
-  };
+  const courses = [
+    {
+      id: 1,
+      name: "Half Stack application development",
+      parts: [
+        {
+          name: "Fundamentals of React",
+          exercises: 10,
+          id: 1,
+        },
+        {
+          name: "Using props to pass data",
+          exercises: 7,
+          id: 2,
+        },
+        {
+          name: "State of a component",
+          exercises: 14,
+          id: 3,
+        },
+      ],
+    },
+    {
+      id: 2,
+      name: "Node.js",
+      parts: [
+        {
+          name: "Routing",
+          exercises: 3,
+          id: 1,
+        },
+        {
+          name: "Middlewares",
+          exercises: 7,
+          id: 2,
+        },
+      ],
+    },
+  ];
+
+  console.log("App launched...");
 
   return (
     <div>
-      <Header course={course} />
-      <Content parts={parts} />
-      <Total parts={parts} />
+      <h1>Web Development Curriculum</h1>
+      {courses.map((course) => {
+        return <Course course={course}></Course>;
+      })}
     </div>
   );
 };
 
 export default App;
-
-const Header = (props) => {
-  return (
-    <div>
-      <h1>{props.course}</h1>
-    </div>
-  );
-};
-
-const Content = (props) => {
-  return (
-    <div>
-      <Part part={props.part1} exercise={props.exercises1} />
-      <Part part={props.part2} exercise={props.exercises2} />
-      <Part part={props.part3} exercise={props.exercises3} />
-    </div>
-  );
-};
-
-const Total = (props) => {
-  return (
-    <div>
-      <p>
-        Number of exercises{" "}
-        {props.exercises1 + props.exercises2 + props.exercises3}
-      </p>
-    </div>
-  );
-};
-
-const Part = (props) => {
-  return (
-    <div>
-      <p>
-        {props.part} {props.exercise}
-      </p>
-    </div>
-  );
-};

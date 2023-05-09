@@ -1,15 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchFilter from "./components/SearchFilter";
 import NewContactForm from "./components/NewContactForm";
 import ContactList from "./components/ContactList";
+import contact from "./services/contact";
 
 function App() {
-  const [persons, setPersons] = useState([
-    { name: "Artos Hellas", number: "495-5555-4444" },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newTextFilter, setNewTextFilter] = useState("");
@@ -39,12 +35,26 @@ function App() {
     if (contactAlreadyExists) {
       alert(`${newName} is already added to the phonebook`);
     } else {
-      setPersons(persons.concat(newPerson));
+      contact.create(newPerson).then((newResource) => {
+        setPersons(persons.concat(newResource));
+      });
     }
   };
 
   const handleTextFiltering = (event) => {
     setNewTextFilter(event.target.value);
+  };
+
+  useEffect(() => {
+    contact.getAll().then((storedContacts) => {
+      setPersons(storedContacts);
+    });
+  }, []);
+
+  const handleContactDelete = (id) => {
+    contact.deleted(id).then((deletedResource) => {
+      contact.getAll();
+    });
   };
 
   return (
@@ -57,7 +67,11 @@ function App() {
       ></NewContactForm>
       <h2>Contacts</h2>
       <SearchFilter onChangeHandler={handleTextFiltering}></SearchFilter>
-      <ContactList contacts={persons} textFilter={newTextFilter}></ContactList>
+      <ContactList
+        contacts={persons}
+        textFilter={newTextFilter}
+        handleContactDelete={handleContactDelete}
+      ></ContactList>
     </div>
   );
 }

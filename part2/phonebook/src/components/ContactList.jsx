@@ -13,6 +13,7 @@ const ContactList = (props) => {
           key={person.name}
           name={person.name}
           number={person.number}
+          handleDelete={() => props.handleContactDelete(person.id)}
         ></Contact>
       ))}
     </div>

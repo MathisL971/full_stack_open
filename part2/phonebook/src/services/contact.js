@@ -11,8 +11,8 @@ const create = (newResource) => {
   return request.then((response) => response.data);
 };
 
-const update = (updatedResource) => {
-  const request = axios.put(baseUrl, updatedResource);
+const update = (id, updatedResource) => {
+  const request = axios.put(`${baseUrl}/${id}`, updatedResource);
   return request.then((response) => response.data);
 };
 
@@ -21,4 +21,5 @@ const deleted = (id) => {
   return request.then((response) => response.data);
 };
 
-export default { getAll, create, update, deleted };
+const services = { getAll, create, update, deleted };
+export default services;

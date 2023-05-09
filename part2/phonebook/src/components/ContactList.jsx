@@ -1,9 +1,9 @@
 import React from "react";
 import Contact from "./Contact";
 
-const ContactList = (props) => {
-  const filteredPersons = props.contacts.filter((element) => {
-    return element.name.toLowerCase().includes(props.textFilter.toLowerCase());
+const ContactList = ({ contacts, textFilter, handleContactDelete }) => {
+  const filteredPersons = contacts.filter((element) => {
+    return element.name.toLowerCase().includes(textFilter.toLowerCase());
   });
 
   return (
@@ -13,7 +13,7 @@ const ContactList = (props) => {
           key={person.name}
           name={person.name}
           number={person.number}
-          handleDelete={() => props.handleContactDelete(person.id)}
+          handleDelete={() => handleContactDelete(person.id)}
         ></Contact>
       ))}
     </div>

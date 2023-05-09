@@ -27,13 +27,25 @@ function App() {
 
     let contactAlreadyExists = false;
     persons.forEach((element) => {
-      if (JSON.stringify(element) === JSON.stringify(newPerson)) {
+      if (element.name === newPerson.name) {
         contactAlreadyExists = true;
       }
     });
 
     if (contactAlreadyExists) {
-      alert(`${newName} is already added to the phonebook`);
+      if (
+        window.confirm(
+          `${newPerson.name} is already added to the phonebook, replace the old number with the new one ?`
+        )
+      ) {
+        const oldContact = persons.find((p) => p.name === newPerson.name);
+        contact.update(oldContact.id, newPerson).then((updatedContact) => {
+          const updatedContacts = persons.map((p) =>
+            p.id !== updatedContact.id ? p : updatedContact
+          );
+          setPersons(updatedContacts);
+        });
+      }
     } else {
       contact.create(newPerson).then((newResource) => {
         setPersons(persons.concat(newResource));
@@ -45,17 +57,22 @@ function App() {
     setNewTextFilter(event.target.value);
   };
 
+  const handleContactDelete = (id) => {
+    const person = persons.find((person) => person.id === id);
+
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      contact.deleted(id).then(() => {
+        const updatedContacts = persons.filter((p) => p.id !== id);
+        setPersons(updatedContacts);
+      });
+    }
+  };
+
   useEffect(() => {
     contact.getAll().then((storedContacts) => {
       setPersons(storedContacts);
     });
   }, []);
-
-  const handleContactDelete = (id) => {
-    contact.deleted(id).then((deletedResource) => {
-      contact.getAll();
-    });
-  };
 
   return (
     <div>

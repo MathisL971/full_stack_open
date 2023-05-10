@@ -3,12 +3,14 @@ import SearchFilter from "./components/SearchFilter";
 import NewContactForm from "./components/NewContactForm";
 import ContactList from "./components/ContactList";
 import contact from "./services/contact";
+import Notification from "./components/Notification";
 
 function App() {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newTextFilter, setNewTextFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
@@ -44,11 +46,19 @@ function App() {
             p.id !== updatedContact.id ? p : updatedContact
           );
           setPersons(updatedContacts);
+          setErrorMessage(`Replaced number of ${updatedContact.name}!`);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 3000);
         });
       }
     } else {
       contact.create(newPerson).then((newResource) => {
         setPersons(persons.concat(newResource));
+        setErrorMessage(`${newPerson.name}'s number was added!`);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 3000);
       });
     }
   };
@@ -77,6 +87,7 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage}></Notification>
       <NewContactForm
         onSubmit={handleNameSubmit}
         onNameChange={handleNameChange}

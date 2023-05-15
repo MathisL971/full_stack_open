@@ -13,6 +13,7 @@ const App = (props) => {
   // Fetch notes from db
   useEffect(() => {
     noteService.getAll().then((initialNotes) => {
+      console.log(initialNotes);
       setNotes(initialNotes);
     });
   }, []);

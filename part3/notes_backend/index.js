@@ -1,6 +1,28 @@
 const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
+
 const app = express();
+
+app.use(cors());
 app.use(express.json());
+app.use(express.static("build"));
+
+const requestLogger = (req, res, next) => {
+  console.log("Method:", req.method);
+  console.log("Path:  ", req.path);
+  console.log("Body:  ", req.body);
+  console.log("---");
+  next();
+};
+
+app.use(requestLogger);
+
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body);
+});
+
+app.use(morgan(":method :url :body"));
 
 let notes = [
   {
@@ -67,7 +89,7 @@ app.get("/api/notes", (request, response) => {
   response.json(notes);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

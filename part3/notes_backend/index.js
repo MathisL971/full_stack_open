@@ -4,10 +4,6 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static("build"));
-
 const requestLogger = (req, res, next) => {
   console.log("Method:", req.method);
   console.log("Path:  ", req.path);
@@ -16,7 +12,14 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(cors());
+app.use(express.json());
 app.use(requestLogger);
+app.use(express.static("build"));
 
 morgan.token("body", (req) => {
   return JSON.stringify(req.body);
@@ -51,6 +54,8 @@ app.get("/api/notes/:id", (request, response) => {
   } else {
     response.status(404).end();
   }
+
+  response.json(note);
 });
 
 app.delete("/api/notes/:id", (request, response) => {
@@ -77,6 +82,7 @@ app.post("/api/notes", (request, response) => {
   const note = {
     content: body.content,
     important: body.important || false,
+    date: new Date(),
     id: generateId(),
   };
 
@@ -88,6 +94,8 @@ app.post("/api/notes", (request, response) => {
 app.get("/api/notes", (request, response) => {
   response.json(notes);
 });
+
+app.use(unknownEndpoint);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

@@ -1,6 +1,29 @@
 const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
+
 const app = express();
+
+const requestLogger = (req, res, next) => {
+  console.log("Method:", req.method);
+  console.log("Path:  ", req.path);
+  console.log("Body:  ", req.body);
+  console.log("---");
+  next();
+};
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(cors());
 app.use(express.json());
+app.use(requestLogger);
+app.use(express.static("build"));
+
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body);
+});
 
 let persons = [
   {
@@ -24,12 +47,6 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
-
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log("http://localhost:3001/api/persons");
-});
 
 // Get all contacts
 app.get("/api/persons", (req, res) => {
@@ -56,6 +73,8 @@ app.get("/api/persons/:id", (req, res) => {
   } else {
     res.status(404).end();
   }
+
+  res.json(person);
 });
 
 // Delete a specific contact
@@ -65,6 +84,7 @@ app.delete("/api/persons/:id", (req, res) => {
   res.status(204).end();
 });
 
+// Generate an id for a new contact
 const generateId = () => {
   let maxId = 0;
   persons.forEach((p) => {
@@ -99,4 +119,12 @@ app.post("/api/persons", (req, res) => {
 
   persons = persons.concat(contact);
   res.json(contact);
+});
+
+app.use(unknownEndpoint);
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log("http://localhost:3001/api/persons");
 });

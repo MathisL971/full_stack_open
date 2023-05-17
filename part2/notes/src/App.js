@@ -1,8 +1,8 @@
 import React from "react";
-import Note from "./Note";
 import { useState, useEffect } from "react";
 import noteService from "./services/notes";
-import Notification from "./Notification";
+import Note from "./components/Note";
+import Notification from "./components/Notification";
 
 const App = (props) => {
   const [notes, setNotes] = useState([]);
@@ -13,7 +13,6 @@ const App = (props) => {
   // Fetch notes from db
   useEffect(() => {
     noteService.getAll().then((initialNotes) => {
-      console.log(initialNotes);
       setNotes(initialNotes);
     });
   }, []);

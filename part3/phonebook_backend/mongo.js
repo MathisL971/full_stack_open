@@ -9,7 +9,7 @@ const password = process.argv[2];
 const name = process.argv[3];
 const number = process.argv[4];
 
-const url = `mongodb+srv://lefrancmathis:${password}@cluster1.gtrcer0.mongodb.net/phonebook?retryWrites=true&w=majority`;
+const url = `mongodb+srv://lefrancmathis:BrebeufMTL5174@cluster1.gtrcer0.mongodb.net/phonebook?retryWrites=true&w=majority`;
 
 mongoose.set("strictQuery", false);
 mongoose.connect(url);
@@ -36,9 +36,10 @@ if (process.argv.length === 5) {
 }
 
 if (process.argv.length === 3) {
+  console.log("Phonebook:");
   Contact.find({}).then((result) => {
     result.forEach((contact) => {
-      console.log(contact);
+      console.log(contact.name, contact.number);
     });
     mongoose.connection.close();
   });

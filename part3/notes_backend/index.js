@@ -26,7 +26,6 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
 app.use(express.static("build"));
-app.use(morgan(":method :url :body"));
 
 // Get all notes
 app.get("/api/notes", (request, response) => {
@@ -37,23 +36,10 @@ app.get("/api/notes", (request, response) => {
 
 // Get a specific note
 app.get("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const note = notes.find((note) => note.id === id);
-
-  if (note) {
+  Note.findById(request.params.id).then((note) => {
     response.json(note);
-  } else {
-    response.status(404).end();
-  }
-
-  response.json(note);
+  });
 });
-
-// Generate an id for a new note
-const generateId = () => {
-  const maxId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) : 0;
-  return maxId + 1;
-};
 
 // Create a note
 app.post("/api/notes", (request, response) => {
@@ -65,24 +51,21 @@ app.post("/api/notes", (request, response) => {
     });
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: body.important || false,
-    date: new Date(),
-    id: generateId(),
-  };
+  });
 
-  notes = notes.concat(note);
-
-  response.json(note);
+  note.save().then((result) => {
+    response.json(result);
+  });
 });
 
 // Delete a note
 app.delete("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id);
-  notes = notes.filter((note) => note.id !== id);
-
-  response.status(204).end();
+  Note.findByIdAndDelete(request.params.id).then((result) => {
+    console.log(result);
+  });
 });
 
 app.use(unknownEndpoint);

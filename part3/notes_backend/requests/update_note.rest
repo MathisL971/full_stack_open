@@ -1,0 +1,7 @@
+PUT http://localhost:3001/api/notes/6466811744615ed8412a6b83
+content-type: application/json
+
+{
+    "content": "Postman is great!",
+    "important": true
+}

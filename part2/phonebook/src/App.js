@@ -53,13 +53,18 @@ function App() {
         });
       }
     } else {
-      contact.create(newPerson).then((newResource) => {
-        setPersons(persons.concat(newResource));
-        setErrorMessage(`${newPerson.name}'s number was added!`);
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 3000);
-      });
+      contact
+        .create(newPerson)
+        .then((newResource) => {
+          setPersons(persons.concat(newResource));
+          setErrorMessage(`${newPerson.name}'s number was added!`);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 3000);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.error);
+        });
     }
   };
 

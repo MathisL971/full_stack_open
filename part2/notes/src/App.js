@@ -8,7 +8,7 @@ const App = (props) => {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [showAll, setShowAll] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("some error happened...");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Fetch notes from db
   useEffect(() => {
@@ -33,7 +33,6 @@ const App = (props) => {
 
   // Function to track state of new note description
   const handleNoteChange = (event) => {
-    console.log(event.target.value);
     setNewNote(event.target.value);
   };
 

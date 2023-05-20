@@ -25,20 +25,24 @@ app.use(requestLogger);
 
 // Get all contacts
 app.get("/api/persons", (req, res) => {
-  Contact.find({}).then((result) => {
-    res.json(result);
-  });
+  Contact.find({})
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 // Get info about contacts
 app.get("/info", (req, res) => {
-  const d = new Date();
-  const n = Contact.find({}).then((result) => {
-    return result.length;
+  Contact.find({}).then((contacts) => {
+    res.send(
+      `<p>Phonebook has info for ${
+        contacts.length
+      } people</p><p>${new Date().toISOString()}</p>`
+    );
   });
-  res.send(
-    `<p>Phonebook has info for ${n} people</p><p>${d.toISOString()}</p>`
-  );
 });
 
 // Get a specific contact
@@ -46,7 +50,7 @@ app.get("/api/persons/:id", (req, res, next) => {
   Contact.findById(req.params.id)
     .then((contact) => {
       if (contact) {
-        res.json(result);
+        res.json(contact);
       } else {
         res.status(404).end();
       }
@@ -66,40 +70,38 @@ app.post("/api/persons", (req, res) => {
     });
   }
 
-  Contact.find({ name: body.name }).then((existingContact) => {
-    if (existingContact.length != 0) {
-      console.log("Contact already exists!");
-      app.put("/api/persons/:id", (req, res, next) => {
-        console.log("Making put request!");
-        const contact = {
-          name: body.name,
-          number: body.number,
-        };
-
-        Contact.findByIdAndUpdate(existingContact[0].id, contact, {
-          new: true,
-        })
-          .then((result) => {
-            console.log("Contact updated!");
-            res.json(result);
-          })
-          .catch((error) => {
-            next(error);
-          });
-      });
-    } else {
-      console.log("This is a new contact!");
-      const contact = new Contact({
-        name: body.name,
-        number: body.number,
-      });
-
-      contact.save().then((savedContact) => {
-        console.log("Saving new contact!");
-        res.json(savedContact);
-      });
-    }
+  const contact = new Contact({
+    name: body.name,
+    number: body.number,
   });
+
+  contact
+    .save()
+    .then((savedContact) => {
+      res.json(savedContact);
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+  const id = req.params.id;
+  console.log(id);
+
+  const updatedContact = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Contact.findByIdAndUpdate(id, updatedContact, { new: true })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 // Delete a specific contact

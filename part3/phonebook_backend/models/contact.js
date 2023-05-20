@@ -29,5 +29,5 @@ contactSchema.set("toJSON", {
   },
 });
 
-// Instantiate model of schema
+// Instantiate model of schema and export it
 module.exports = mongoose.model("Contact", contactSchema);

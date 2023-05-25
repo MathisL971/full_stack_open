@@ -58,8 +58,26 @@ router.post("/", (req, res, next) => {
 // Define a DELETE route to delete a blog
 router.delete("/:id", (req, res, next) => {
   Blog.findByIdAndRemove(req.params.id)
-    .then((removedBlog) => {
+    .then(() => {
       res.status(204).end();
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+// Define a POST route to update an existing blog
+router.put("/:id", (req, res, next) => {
+  const blog = {
+    title: req.body.title,
+    author: req.body.author,
+    url: req.body.url,
+    likes: req.body.likes,
+  };
+
+  Blog.findByIdAndUpdate(req.params.id, blog, { new: true })
+    .then((updatedBlog) => {
+      res.json(updatedBlog);
     })
     .catch((error) => {
       next(error);

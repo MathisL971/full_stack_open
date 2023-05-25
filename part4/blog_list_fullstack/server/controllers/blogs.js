@@ -48,7 +48,7 @@ router.post("/", (req, res, next) => {
   newBlog
     .save()
     .then((savedBlog) => {
-      res.json(savedBlog);
+      res.status(201).json(savedBlog);
     })
     .catch((error) => {
       next(error);

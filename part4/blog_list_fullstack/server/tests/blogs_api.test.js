@@ -74,6 +74,81 @@ test("get all blogs", async () => {
   expect(res.headers["content-type"]).toMatch(/application\/json/);
 });
 
+test("check name of id property", async () => {
+  const res = await api.get("/api/blogs");
+
+  expect(res.body[0].id).toBeDefined();
+  expect(res.body[0]).toHaveProperty("id");
+});
+
+test("should add a new blog to the list", async () => {
+  const newBlog = {
+    title: "test title",
+    author: "test author",
+    url: "testurl.html",
+    likes: 4,
+  };
+
+  const postRes = await api.post("/api/blogs").send(newBlog);
+  expect(postRes.status).toBe(201);
+  expect(postRes.headers["content-type"]).toMatch(/application\/json/);
+
+  const getRes = await api.get("/api/blogs");
+
+  const contents = getRes.body.map((blog) => blog.title);
+
+  expect(getRes.body).toHaveLength(blogs.length + 1);
+  expect(contents).toContain("test title");
+});
+
+describe("testing missing attributes", () => {
+  test("should default likes attribute to 0 if not specified", async () => {
+    const newBlog = {
+      title: "test title",
+      author: "test author",
+      url: "testurl.html",
+    };
+
+    const postRes = await api.post("/api/blogs").send(newBlog);
+    expect(postRes.status).toBe(201);
+    expect(postRes.headers["content-type"]).toMatch(/application\/json/);
+
+    const getRes = await api.get("/api/blogs");
+
+    const addedBlog = getRes.body.find((blog) => blog.title === "test title");
+
+    expect(addedBlog.likes).toBe(0);
+  });
+
+  test("should return error with status 400 if title is not specified", async () => {
+    const newBlog = {
+      author: "test author",
+      url: "testurl.html",
+      likes: 4,
+    };
+
+    try {
+      const postRes = await api.post("/api/blogs").send(newBlog);
+    } catch (error) {
+      expect(postRes.status).toBe(400);
+    }
+  });
+
+  test("should return error with status 400 if url is not specified", async () => {
+    const newBlog = {
+      title: "test title",
+      author: "test author",
+      likes: 4,
+    };
+
+    try {
+      const postRes = await api.post("/api/blogs").send(newBlog);
+    } catch (error) {
+      expect(postRes.status).toBe(400);
+    }
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });

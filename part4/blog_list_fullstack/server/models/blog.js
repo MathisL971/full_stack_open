@@ -2,10 +2,20 @@ const mongoose = require("mongoose");
 
 // Define blog schema
 const blogSchema = new mongoose.Schema({
-  title: String,
+  title: {
+    type: String,
+    required: true,
+  },
   author: String,
-  url: String,
-  likes: Number,
+  url: {
+    type: String,
+    required: true,
+  },
+  likes: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 });
 
 // Modify serialization of documents generated from blogSchema

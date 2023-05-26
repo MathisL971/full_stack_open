@@ -11,7 +11,8 @@ const app = express();
 const cors = require("cors");
 
 // Require router
-const router = require("./controllers/blogs");
+const blogsRouter = require("./controllers/blogs");
+const usersRouter = require("./controllers/users");
 
 // Require mongoose and disable strict mode for queries
 const mongoose = require("mongoose");
@@ -36,7 +37,8 @@ app.use(express.static("build")); // Enable servicing of static files from the "
 app.use(express.json()); // Enable parsing of incoming requests with JSON payloads
 app.use(middleware.requestLogger); // Enable detailed logging of HTTP requests
 
-app.use("/api/blogs", router); // Enable router middleware for any incoming requests that match the path "/api/blogs" or its sub-paths
+app.use("/api/blogs", blogsRouter); // Enable router middleware for any incoming requests that match the path "/api/blogs" or its sub-paths
+app.use("/api/users", usersRouter);
 
 app.use(middleware.unknownEndpoint); // Enable logging of unknown endpoint HTTP errors
 app.use(middleware.errorHandler); // Enable handling of various errors

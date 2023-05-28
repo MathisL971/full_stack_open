@@ -1,22 +1,16 @@
-const logger = require("../utils/logger");
+const jwt = require("jsonwebtoken");
 
 // Create an instance of an Express Router
 const router = require("express").Router();
 
 // Require blog schema model
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 // Define a GET route to fetch all blogs
-router.get("/", (req, res, next) => {
-  logger.info("Fetching all blogs...");
-  Blog.find({})
-    .then((blogs) => {
-      logger.info("Sending back all blogs.");
-      res.json(blogs);
-    })
-    .catch((error) => {
-      next(error);
-    });
+router.get("/", async (req, res, next) => {
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
+  res.json(blogs);
 });
 
 // Define a GET route to fetch an individual blog
@@ -34,8 +28,18 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
+// const getTokenFrom = (request) => {
+//   const authorization = request.get("authorization");
+
+//   if (authorization && authorization.startsWith("Bearer ")) {
+//     return authorization.replace("Bearer ", "");
+//   }
+
+//   return null;
+// };
+
 // Define a POST route to create a new blog
-router.post("/", (req, res, next) => {
+router.post("/", async (req, res, next) => {
   const { title, author, url, likes } = req.body;
 
   const newBlog = new Blog({
@@ -43,27 +47,30 @@ router.post("/", (req, res, next) => {
     author,
     url,
     likes,
+    user: req.user.id,
   });
 
-  newBlog
-    .save()
-    .then((savedBlog) => {
-      res.status(201).json(savedBlog);
-    })
-    .catch((error) => {
-      next(error);
-    });
+  const addedBlog = await newBlog.save();
+  req.user.blogs = req.user.blogs.concat(newBlog._id);
+  await req.user.save();
+
+  res.status(201).json(addedBlog);
 });
 
 // Define a DELETE route to delete a blog
-router.delete("/:id", (req, res, next) => {
-  Blog.findByIdAndRemove(req.params.id)
-    .then(() => {
+router.delete("/:id", async (req, res, next) => {
+  const blog = await Blog.findById(req.params.id);
+
+  if (!blog) {
+    res.status(400).json({ error: "blog not found" }).end();
+  } else {
+    if (blog.user.toString() === req.user.id.toString()) {
+      await Blog.deleteOne({ _id: blog._id });
       res.status(204).end();
-    })
-    .catch((error) => {
-      next(error);
-    });
+    } else {
+      res.status(400).json({ error: "invalid operation" });
+    }
+  }
 });
 
 // Define a POST route to update an existing blog

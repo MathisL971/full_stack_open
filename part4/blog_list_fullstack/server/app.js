@@ -13,6 +13,7 @@ const cors = require("cors");
 // Require router
 const blogsRouter = require("./controllers/blogs");
 const usersRouter = require("./controllers/users");
+const loginRouter = require("./controllers/login");
 
 // Require mongoose and disable strict mode for queries
 const mongoose = require("mongoose");
@@ -36,9 +37,13 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing (CORS)
 app.use(express.static("build")); // Enable servicing of static files from the "build" directory
 app.use(express.json()); // Enable parsing of incoming requests with JSON payloads
 app.use(middleware.requestLogger); // Enable detailed logging of HTTP requests
+app.use(middleware.tokenExtractor); // Enable extraction of token
+app.use(middleware.userExtractor); // Enable extraction of user
 
-app.use("/api/blogs", blogsRouter); // Enable router middleware for any incoming requests that match the path "/api/blogs" or its sub-paths
+// Enable router middleware for any incoming requests
+app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/login", loginRouter);
 
 app.use(middleware.unknownEndpoint); // Enable logging of unknown endpoint HTTP errors
 app.use(middleware.errorHandler); // Enable handling of various errors

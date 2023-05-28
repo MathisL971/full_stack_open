@@ -16,6 +16,10 @@ const blogSchema = new mongoose.Schema({
     required: false,
     default: 0,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 // Modify serialization of documents generated from blogSchema

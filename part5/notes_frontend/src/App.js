@@ -8,7 +8,7 @@ import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import NoteForm from "./components/NoteForm";
 
-const App = (props) => {
+const App = () => {
   const [notes, setNotes] = useState([]);
   const [showAll, setShowAll] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -62,7 +62,7 @@ const App = (props) => {
     }
   };
 
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     window.localStorage.removeItem("loggedNoteappUser");
     noteService.setToken(null);
     setUser(null);
@@ -85,7 +85,7 @@ const App = (props) => {
       .then((returnedNote) => {
         setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)));
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(
           `Note '${note.content}' was already removed from server`
         );
@@ -143,6 +143,12 @@ const App = (props) => {
           ></Note>
         ))}
       </ul>
+
+      <h4>
+        <i>
+          Note app, Department of Computer Science, University of Helsinki 2023
+        </i>
+      </h4>
     </div>
   );
 };

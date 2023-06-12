@@ -12,7 +12,7 @@ const Blog = ({ blog, loggedInUser, handleLike, handleDelete }) => {
   const [detailsVisible, setDetailsVisible] = useState(false);
 
   return (
-    <div style={blogStyle}>
+    <div className="blog" style={blogStyle}>
       <div>
         {blog.title} - {blog.author}
         <button

@@ -82,7 +82,7 @@ const App = () => {
   };
 
   // Handle logout
-  const handleLogout = async (event) => {
+  const handleLogout = async () => {
     window.localStorage.removeItem("loggedNoteappUser");
     blogService.setToken(null);
     setUser(null);

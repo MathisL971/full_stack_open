@@ -45,6 +45,12 @@ app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
 
+// If in test mode, use testing router
+if (process.env.NODE_ENV === "test") {
+  const testingRouter = require("./controllers/testing");
+  app.use("/api/testing", testingRouter);
+}
+
 app.use(middleware.unknownEndpoint); // Enable logging of unknown endpoint HTTP errors
 app.use(middleware.errorHandler); // Enable handling of various errors
 

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import { createStore } from "redux";
+import { configureStore } from "reduxjs/toolkit";
 
 const counterReducer = (state = 0, action) => {
   switch (action.type) {
@@ -16,7 +16,7 @@ const counterReducer = (state = 0, action) => {
   }
 };
 
-const store = createStore(counterReducer);
+const store = configureStore(counterReducer);
 
 const App = () => {
   return (

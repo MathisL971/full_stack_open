@@ -15,7 +15,9 @@ const Anecdote = ({ anecdote, handleClick }) => {
 };
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector((state) => state);
+  const anecdotes = useSelector(({ filter, anecdotes }) => {
+    return anecdotes.filter((a) => a.content.includes(filter));
+  });
   const dispatch = useDispatch();
 
   const sortedNotes = anecdotes.sort((a, b) => {

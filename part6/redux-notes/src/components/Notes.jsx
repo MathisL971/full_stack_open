@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { toggleImportanceOf } from "../reducers/noteReducer";
+import noteService from "../services/notes";
 
 const Note = ({ note, handleClick }) => {
   return (
@@ -21,13 +22,18 @@ const Notes = () => {
       : notes.filter((n) => !n.important);
   });
 
+  const toggleNoteImportance = async (note) => {
+    await noteService.toggleImportance(note);
+    dispatch(toggleImportanceOf(note.id));
+  };
+
   return (
     <ul>
       {notes.map((note) => (
         <Note
           key={note.id}
           note={note}
-          handleClick={() => dispatch(toggleImportanceOf(note.id))}
+          handleClick={() => toggleNoteImportance(note)}
         />
       ))}
     </ul>

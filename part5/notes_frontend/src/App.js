@@ -2,16 +2,28 @@ import React from "react";
 import { useState, useEffect, useRef } from "react";
 import noteService from "./services/notes";
 import loginService from "./services/login";
-import Note from "./components/Note";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import NoteForm from "./components/NoteForm";
 
+import { Alert } from "react-bootstrap";
+import {
+  Container,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Link,
+} from "@mui/material";
+
 const App = () => {
   const [notes, setNotes] = useState([]);
   const [showAll, setShowAll] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [notification, setNotification] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -54,6 +66,10 @@ const App = () => {
       setUser(loggedInUser);
       setUsername("");
       setPassword("");
+      setNotification(`Hello ${username}`);
+      setTimeout(() => {
+        setNotification("");
+      }, 3000);
     } catch (error) {
       setErrorMessage("Wrong credentials");
       setTimeout(() => {
@@ -75,30 +91,32 @@ const App = () => {
     });
   };
 
-  // Function to toggle important of a note
-  const toggleImportanceOf = async (id) => {
-    const note = notes.find((n) => n.id === id);
-    const changedNote = { ...note, important: !note.important };
+  // // Function to toggle important of a note
+  // const toggleImportanceOf = async (id) => {
+  //   const note = notes.find((n) => n.id === id);
+  //   const changedNote = { ...note, important: !note.important };
 
-    try {
-      const returnedNote = await noteService.update(id, changedNote);
-      setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)));
-    } catch (error) {
-      setErrorMessage(`Note '${note.content}' was already removed from server`);
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-      setNotes(notes.filter((note) => note.id !== id));
-    }
-  };
+  //   try {
+  //     const returnedNote = await noteService.update(id, changedNote);
+  //     setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)));
+  //   } catch (error) {
+  //     setErrorMessage(`Note '${note.content}' was already removed from server`);
+  //     setTimeout(() => {
+  //       setErrorMessage(null);
+  //     }, 5000);
+  //     setNotes(notes.filter((note) => note.id !== id));
+  //   }
+  // };
 
   // Filter notes to show
   const notesToShow = showAll ? notes : notes.filter((note) => note.important);
 
   return (
-    <div>
+    <Container>
+      {errorMessage && <Notification message={errorMessage} />}
+      {notification && <Alert variant="success">{notification}</Alert>}
+
       <h1>Notes</h1>
-      <Notification message={errorMessage} />
 
       {!user && (
         <Togglable buttonLabel="login">
@@ -130,22 +148,27 @@ const App = () => {
         </button>
       </div>
 
-      <ul>
-        {notesToShow.map((note) => (
-          <Note
-            key={note.id}
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
-          ></Note>
-        ))}
-      </ul>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {notesToShow.map((note) => (
+              <TableRow key={note.id}>
+                <TableCell>
+                  <Link to={`/notes/${note.id}`}>{note.content}</Link>
+                </TableCell>
+                <TableCell>{note.user}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <h4>
         <i>
           Note app, Department of Computer Science, University of Helsinki 2023
         </i>
       </h4>
-    </div>
+    </Container>
   );
 };
 

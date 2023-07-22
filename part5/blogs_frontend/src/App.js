@@ -1,32 +1,48 @@
+// Libraries
+import React from "react";
 import { useState, useEffect, useRef } from "react";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
-import signupService from "./services/signup";
+import { useSelector, useDispatch } from "react-redux";
+
+// Components
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
 import NewBlogForm from "./components/NewBlogForm";
 import Toggleble from "./components/Togglable";
 
+import {
+  loginAction,
+  signupAction,
+  logoutAction,
+  existingLoginAction,
+} from "./reducers/user";
+import { blogFetchAction } from "./reducers/blogs";
+
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const dispatch = useDispatch();
+
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
+
+  const notification = useSelector((state) => state.notification);
+  const { user } = useSelector((state) => state.user);
+  const { blogs } = useSelector((state) => state.blogs);
 
   const newBlogFormRef = useRef("");
 
+  // Fetch blogs
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
+    dispatch(blogFetchAction());
   }, []);
 
+  // Log in user if already appears in session storage
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
+    const loggedUser = JSON.parse(
+      window.localStorage.getItem("loggedNoteappUser")
+    );
+    if (loggedUser) {
+      dispatch(existingLoginAction(loggedUser));
     }
   }, []);
 
@@ -34,20 +50,7 @@ const App = () => {
     event.preventDefault();
 
     try {
-      const signedUpUser = await signupService.signup({
-        name,
-        username,
-        password,
-      });
-
-      window.localStorage.setItem(
-        "loggedNoteappUser",
-        JSON.stringify(signedUpUser)
-      );
-
-      blogService.setToken(signedUpUser.token);
-
-      setUser(signedUpUser);
+      dispatch(signupAction({ name, username, password }));
       setName("");
       setUsername("");
       setPassword("");
@@ -61,69 +64,12 @@ const App = () => {
     event.preventDefault();
 
     try {
-      const loggedInUser = await loginService.login({
-        username,
-        password,
-      });
-
-      window.localStorage.setItem(
-        "loggedNoteappUser",
-        JSON.stringify(loggedInUser)
-      );
-
-      blogService.setToken(loggedInUser.token);
-
-      setUser(loggedInUser);
+      dispatch(loginAction(username, password));
       setUsername("");
       setPassword("");
     } catch (error) {
       console.log(error.message);
     }
-  };
-
-  // Handle logout
-  const handleLogout = async () => {
-    window.localStorage.removeItem("loggedNoteappUser");
-    blogService.setToken(null);
-    setUser(null);
-  };
-
-  // Add blog
-  const addBlog = async (newBlog) => {
-    try {
-      newBlogFormRef.current.toggleVisibility();
-      const addedBlog = await blogService.create(newBlog);
-      const updatedBlogs = blogs.concat(addedBlog);
-      setBlogs(updatedBlogs);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const deleteBlog = async (blogToDelete) => {
-    if (
-      window.confirm(
-        `Removing blog "${blogToDelete.title}" by ${blogToDelete.author}. Are you sure?`
-      )
-    ) {
-      try {
-        await blogService.toDelete(blogToDelete);
-        setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
-  const handleLike = async (blogToLike) => {
-    blogToLike.likes++;
-    const updatedBlog = await blogService.update(blogToLike);
-
-    setBlogs(
-      blogs.map((blog) => {
-        return blog.id === updatedBlog.id ? updatedBlog : blog;
-      })
-    );
   };
 
   const sortedBlogs = [...blogs].sort((a, b) => {
@@ -132,8 +78,12 @@ const App = () => {
 
   return (
     <div>
+      {notification && <div>{notification}</div>}
+
       <h2 className="content-center">Blogs List</h2>
+
       {user && <p>{user.username} is logged in!</p>}
+
       {!user && (
         <Toggleble buttonLabel="Log In">
           <LoginForm
@@ -171,7 +121,7 @@ const App = () => {
 
       {user && (
         <Toggleble buttonLabel="New Note" ref={newBlogFormRef}>
-          <NewBlogForm createBlog={addBlog}></NewBlogForm>
+          <NewBlogForm newBlogFormRef={newBlogFormRef}></NewBlogForm>
         </Toggleble>
       )}
 
@@ -179,18 +129,12 @@ const App = () => {
 
       {user &&
         sortedBlogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            loggedInUser={user}
-            handleLike={handleLike}
-            handleDelete={deleteBlog}
-          />
+          <Blog key={blog.id} blog={blog} loggedInUser={user} />
         ))}
 
       <br></br>
 
-      {user && <button onClick={handleLogout}>Logout</button>}
+      {user && <button onClick={() => dispatch(logoutAction())}>Logout</button>}
     </div>
   );
 };

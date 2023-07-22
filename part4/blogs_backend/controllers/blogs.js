@@ -87,7 +87,7 @@ router.delete("/:id", async (req, res, next) => {
       await Blog.deleteOne({ _id: blog._id });
       user.blogs = user.blogs.filter((b) => b._id.toString() !== blog.id);
       await user.save();
-      res.status(204).end();
+      res.status(204).send("Blog was deleted");
     } else {
       res.status(400).json({ error: "invalid operation" });
     }

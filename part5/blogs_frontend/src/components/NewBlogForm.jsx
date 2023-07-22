@@ -1,7 +1,12 @@
 import React from "react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
-const NewBlogForm = ({ createBlog }) => {
+import { blogAddAction } from "../reducers/blogs";
+
+const NewBlogForm = ({ newBlogFormRef }) => {
+  const dispatch = useDispatch();
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -10,12 +15,9 @@ const NewBlogForm = ({ createBlog }) => {
   const addBlog = async (event) => {
     event.preventDefault();
 
-    createBlog({
-      title,
-      author,
-      url,
-      likes: 0,
-    });
+    newBlogFormRef.current.toggleVisibility();
+
+    dispatch(blogAddAction({ title, author, url, likes: 0 }));
 
     setTitle("");
     setAuthor("");

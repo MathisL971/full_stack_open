@@ -1,0 +1,8 @@
+POST http://localhost:3001/api/notes HTTP/1.1
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdWtrYWkiLCJpZCI6IjY0NzBiYjU2MjQxM2JiYzEyNDZlZGMwNiIsImlhdCI6MTY4NTExMzg3Nn0.s1T6rcdNJ-WWi6ZDcDfUCrhsV52WRAfKD_H1seRLK7A
+
+{
+    "content": "Test note 3",
+    "important": true
+}

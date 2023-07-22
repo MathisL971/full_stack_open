@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { blogDeleteAction, blogUpdateAction } from "../reducers/blogs";
 
-const Blog = ({ blog, loggedInUser, handleLike, handleDelete }) => {
+const Blog = ({ blog, loggedInUser }) => {
+  const dispatch = useDispatch();
+
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -30,7 +34,7 @@ const Blog = ({ blog, loggedInUser, handleLike, handleDelete }) => {
           Likes: {blog.likes}
           <button
             onClick={() => {
-              handleLike(blog);
+              dispatch(blogUpdateAction({ ...blog, likes: blog.likes + 1 }));
             }}
           >
             Like
@@ -41,7 +45,13 @@ const Blog = ({ blog, loggedInUser, handleLike, handleDelete }) => {
           {loggedInUser.username === blog.user.username && (
             <button
               onClick={() => {
-                handleDelete(blog);
+                if (
+                  window.confirm(
+                    `Removing blog "${blog.title}" by ${blog.author}. Are you sure?`
+                  )
+                ) {
+                  dispatch(blogDeleteAction(blog));
+                }
               }}
             >
               Delete
